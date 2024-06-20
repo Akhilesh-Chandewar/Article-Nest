@@ -1,0 +1,70 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Define the data model for the CMS
+
+// User entity
+model User {
+  UserID      Int       @id @default(autoincrement())
+  Username    String    @unique
+  Email       String    @unique
+  Password    String
+  Role        Role      @relation(fields: [RoleID], references: [RoleID])
+  RoleID      Int
+  comments    Comment[]
+  authoredContents   Content[] @relation("Author")
+}
+
+// Role entity
+model Role {
+  RoleID      Int       @id @default(autoincrement())
+  RoleName    String
+  users       User[]
+}
+
+// Content entity
+model Content {
+  ContentID           Int       @id @default(autoincrement())
+  ContentType         String
+  Title               String
+  ContentDescription  String
+  author              User      @relation("Author", fields: [UserID], references: [UserID])
+  UserID              Int
+  categories          Category[]
+  tags                Tag[]
+  comments            Comment[]
+}
+
+// Category entity
+model Category {
+  CategoryID      Int       @id @default(autoincrement())
+  CategoryName    String
+  contents        Content[]
+}
+
+// Tag entity
+model Tag {
+  TagID       Int       @id @default(autoincrement())
+  TagName     String
+  contents    Content[]
+}
+
+// Comment entity
+model Comment {
+  CommentID     Int       @id @default(autoincrement())
+  CommentText   String
+  CommentDate   DateTime
+  user          User      @relation(fields: [UserID], references: [UserID])
+  UserID        Int
+  content       Content   @relation(fields: [ContentID], references: [ContentID])
+  ContentID     Int
+}
